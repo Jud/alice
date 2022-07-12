@@ -34,7 +34,9 @@ type round3Data struct {
 
 type Result struct {
 	refreshShare     *big.Int
+	Share            *big.Int
 	sumpartialPubKey map[string]*pt.ECPoint
+	PartialPublicKey map[string]*pt.ECPoint
 }
 
 type round3Handler struct {
@@ -218,7 +220,9 @@ func (p *round3Handler) Finalize(logger log.Logger) (types.Handler, error) {
 	}
 	p.result = &Result{
 		refreshShare:     refreshShare,
+		Share:            refreshShare,
 		sumpartialPubKey: partialPubKey,
+		PartialPublicKey: partialPubKey,
 	}
 	return nil, nil
 }
