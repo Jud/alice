@@ -36,10 +36,11 @@ type DKG struct {
 }
 
 type Result struct {
-	PublicKey *ecpointgrouplaw.ECPoint
-	Share     *big.Int
-	Bks       map[string]*birkhoffinterpolation.BkParameter
-	Rid       []byte
+	PublicKey  *ecpointgrouplaw.ECPoint
+	Share      *big.Int
+	Bks        map[string]*birkhoffinterpolation.BkParameter
+	PublicKeys map[string]*ecpointgrouplaw.ECPoint
+	Rid        []byte
 }
 
 func NewDKG(curve elliptic.Curve, peerManager types.PeerManager, sid []byte, threshold uint32, rank uint32, listener types.StateChangedListener) (*DKG, error) {
@@ -98,15 +99,26 @@ func (d *DKG) GetResult() (*Result, error) {
 	}
 
 	bks := make(map[string]*birkhoffinterpolation.BkParameter, d.ph.peerManager.NumPeers()+1)
+	partialPublicKeys := make(map[string]*ecpointgrouplaw.ECPoint, d.ph.peerManager.NumPeers()+1)
 	bks[d.ph.peerManager.SelfID()] = d.ph.bk
+
+	ownPoint, err := rh.siGProofMsg.V.ToPoint()
+	if err != nil {
+		log.Warn("Failed to get point", "err", err)
+		return nil, err
+	}
+	partialPublicKeys[d.ph.peerManager.SelfID()] = ownPoint
+
 	for id, peer := range d.ph.peers {
 		bks[id] = peer.peer.bk
+		partialPublicKeys[id] = peer.result.result
 	}
 	return &Result{
-		PublicKey: rh.publicKey,
-		Share:     rh.share,
-		Bks:       bks,
-		Rid:       rh.rid,
+		PublicKey:  rh.publicKey,
+		Share:      rh.share,
+		Bks:        bks,
+		PublicKeys: partialPublicKeys,
+		Rid:        rh.rid,
 	}, nil
 }
 
