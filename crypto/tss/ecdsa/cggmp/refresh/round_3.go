@@ -38,6 +38,8 @@ type Result struct {
 	sumpartialPubKey map[string]*pt.ECPoint
 	PartialPublicKey map[string]*pt.ECPoint
 	PederssenParas   map[string]*paillierzkproof.PederssenOpenParameter
+	PaillierPrivateP *big.Int
+	PaillierPrivateQ *big.Int
 }
 
 type round3Handler struct {
@@ -229,6 +231,8 @@ func (p *round3Handler) Finalize(logger log.Logger) (types.Handler, error) {
 		sumpartialPubKey: partialPubKey,
 		PartialPublicKey: partialPubKey,
 		PederssenParas:   pederssenParas,
+		PaillierPrivateP: p.ped.GetP(),
+		PaillierPrivateQ: p.ped.GetQ(),
 	}
 	return nil, nil
 }
