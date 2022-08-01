@@ -47,16 +47,16 @@ type round1Handler struct {
 	threshold   uint32
 	ownBK       *birkhoffinterpolation.BkParameter
 
-	y              *big.Int
-	tau            *big.Int // Schnorr commitment of y
-	poly           *polynomial.Polynomial
-	feldCommitment *commitment.FeldmanCommitmenter
-	rho            []byte
-	u              []byte // salt
-	ped            *paillier.PederssenParameter
-	pedParZkproof  *paillierzkproof.RingPederssenParameterMessage
-	V              *commitment.HashCommitmenter
-	ai             map[string]*big.Int // Schnorr commitment of shares
+	y                  *big.Int
+	tau                *big.Int // Schnorr commitment of y
+	poly               *polynomial.Polynomial
+	feldCommitment     *commitment.FeldmanCommitmenter
+	rho                []byte
+	u                  []byte // salt
+	ped                *paillier.PederssenParameter
+	pedParZkproof      *paillierzkproof.RingPederssenParameterMessage
+	V                  *commitment.HashCommitmenter
+	ai                 map[string]*big.Int // Schnorr commitment of shares
 
 	bks map[string]*birkhoffinterpolation.BkParameter
 
@@ -80,12 +80,12 @@ func newRound1Handler(pubKey *ecpointgrouplaw.ECPoint, peerManager types.PeerMan
 	}
 
 	p := &round1Handler{
-		ssid:        ssid,
-		paillierKey: paillierKey,
-		pubKey:      pubKey,
-		threshold:   threshold,
-		bks:         bks,
-		ownBK:       bks[peerManager.SelfID()],
+		ssid:               ssid,
+		paillierKey:        paillierKey,
+		pubKey:             pubKey,
+		threshold:          threshold,
+		bks:                bks,
+		ownBK:              bks[peerManager.SelfID()],
 
 		peerNum:     numPeers,
 		peers:       buildPeers(peerManager),
