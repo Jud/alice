@@ -188,7 +188,7 @@ func (p *round3Handler) HandleMessage(logger log.Logger, message types.Message) 
 	if err != nil {
 		return err
 	}
-	
+
 	peer.round3 = &round3Data{
 		plaintextShareBig:    plaintextShareBig,
 		partialRefreshPubKey: partialRefreshPubKey,
