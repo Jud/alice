@@ -237,14 +237,22 @@ func (p *round3Handler) Finalize(logger log.Logger) (types.Handler, error) {
 
 	p.result = &Result{
 		// new Share
-		Share:       refreshShare,
-		PaillierKey: p.paillierKey,
+		Share:        refreshShare,
+		RefreshShare: refreshShare,
+
+		PaillierKey:        p.paillierKey,
+		RefreshPaillierKey: p.paillierKey,
+
 		// refreshPartialPubKey: X
-		PartialPubKey: partialPubKey,
-		Y:             Y,
+		PartialPubKey:        partialPubKey,
+		RefreshPartialPubKey: partialPubKey,
+
+		Y: Y,
 		// pedParameter: N, s, t
-		PedParameter: ped,
-		YSecret:      p.y,
+		PedParameter:     ped,
+		YSecret:          p.y,
+		PaillierPrivateP: p.ped.GetP(),
+		PaillierPrivateQ: p.ped.GetQ(),
 	}
 	return nil, nil
 }

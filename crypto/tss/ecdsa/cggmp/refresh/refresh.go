@@ -35,12 +35,21 @@ type Refresh struct {
 }
 
 type Result struct {
-	Share         *big.Int
-	PaillierKey   *paillier.Paillier
-	PartialPubKey map[string]*pt.ECPoint
-	Y             map[string]*pt.ECPoint
-	PedParameter  map[string]*paillierzkproof.PederssenOpenParameter
-	YSecret       *big.Int
+	Share        *big.Int
+	RefreshShare *big.Int
+
+	PaillierKey        *paillier.Paillier
+	RefreshPaillierKey *paillier.Paillier
+
+	PartialPubKey        map[string]*pt.ECPoint
+	RefreshPartialPubKey map[string]*pt.ECPoint
+
+	Y            map[string]*pt.ECPoint
+	PedParameter map[string]*paillierzkproof.PederssenOpenParameter
+	YSecret      *big.Int
+
+	PaillierPrivateP *big.Int
+	PaillierPrivateQ *big.Int
 }
 
 func NewRefresh(oldShare *big.Int, pubKey *ecpointgrouplaw.ECPoint, peerManager types.PeerManager, threshold uint32, partialPubKey map[string]*ecpointgrouplaw.ECPoint, bks map[string]*birkhoffinterpolation.BkParameter, keySize int, ssid []byte, listener types.StateChangedListener) (*Refresh, error) {
