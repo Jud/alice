@@ -25,7 +25,7 @@ import (
 	"github.com/getamis/alice/crypto/ecpointgrouplaw"
 	"github.com/getamis/alice/crypto/polynomial"
 	"github.com/getamis/alice/crypto/tss"
-	"github.com/getamis/alice/crypto/tss/ecdsa/gg18/addshare"
+	"github.com/getamis/alice/crypto/tss/ecdsa/addshare"
 	"github.com/getamis/alice/crypto/utils"
 	"github.com/getamis/alice/crypto/zkproof"
 	"github.com/getamis/alice/types"
@@ -46,7 +46,7 @@ var _ = Describe("AddShare", func() {
 	newPeerID := "new-peer"
 
 	DescribeTable("NewAddShare", func(threshold uint32, bks []*birkhoffinterpolation.BkParameter, newPeerRank uint32) {
-		addShares, listeners := newAddShares(curve, threshold, bks, newPeerID)
+		addShares, pubkey, listeners := newAddShares(curve, threshold, bks, newPeerID)
 		for _, l := range listeners {
 			l.On("OnStateChanged", types.StateInit, types.StateDone).Once()
 		}
@@ -113,6 +113,15 @@ var _ = Describe("AddShare", func() {
 			Expect(err).Should(BeNil())
 			Expect(r.Share).ShouldNot(BeNil())
 			Expect(r.Bks[newPeerID]).ShouldNot(BeNil())
+
+			newBks := birkhoffinterpolation.BkParameters{}
+			newPks := []*ecpointgrouplaw.ECPoint{}
+			for id, newBk := range r.Bks {
+				newBks = append(newBks, newBk)
+				newPks = append(newPks, r.PartialPublicKeys[id])
+			}
+
+			Expect(newBks.ValidatePublicKey(newPks, threshold, pubkey)).Should(BeNil())
 		}
 	},
 		Entry("Case #0", uint32(3),
@@ -251,7 +260,7 @@ var _ = Describe("AddShare", func() {
 	})
 })
 
-func newAddShares(c elliptic.Curve, threshold uint32, bks []*birkhoffinterpolation.BkParameter, newPeerID string) (map[string]*AddShare, map[string]*mocks.StateChangedListener) {
+func newAddShares(c elliptic.Curve, threshold uint32, bks []*birkhoffinterpolation.BkParameter, newPeerID string) (map[string]*AddShare, *ecpointgrouplaw.ECPoint, map[string]*mocks.StateChangedListener) {
 	// new peer managers and reshares
 	lens := len(bks)
 	addShares := make(map[string]*AddShare, lens)
@@ -287,5 +296,5 @@ func newAddShares(c elliptic.Curve, threshold uint32, bks []*birkhoffinterpolati
 		Expect(err).Should(Equal(tss.ErrNotReady))
 		addShares[id].Start()
 	}
-	return addShares, listeners
+	return addShares, pubkey, listeners
 }
