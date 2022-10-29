@@ -34,12 +34,7 @@ type round3Data struct {
 
 type Result struct {
 	refreshShare     *big.Int
-	Share            *big.Int
 	sumpartialPubKey map[string]*pt.ECPoint
-	PartialPublicKey map[string]*pt.ECPoint
-	PederssenParas   map[string]*paillierzkproof.PederssenOpenParameter
-	PaillierPrivateP *big.Int
-	PaillierPrivateQ *big.Int
 }
 
 type round3Handler struct {
@@ -202,13 +197,9 @@ func (p *round3Handler) Finalize(logger log.Logger) (types.Handler, error) {
 	sumpartialPubKey := pt.ScalarBaseMult(curve, p.refreshShare)
 	partialPubKey := make(map[string]*pt.ECPoint)
 	var err error
-	pederssenParas := make(map[string]*paillierzkproof.PederssenOpenParameter, len(p.peers)+1)
-	pederssenParas[p.peerManager.SelfID()] = p.ped.PedersenOpenParameter
-
-	for id, peer := range p.peers {
+	for _, peer := range p.peers {
 		plaintextShareBig := peer.round3.plaintextShareBig
 		refreshShare = refreshShare.Add(refreshShare, plaintextShareBig)
-		pederssenParas[id] = peer.round2.pederssenPara
 		sumpartialPubKey, err = sumpartialPubKey.Add(pt.ScalarBaseMult(curve, plaintextShareBig))
 		if err != nil {
 			return nil, err
@@ -227,12 +218,7 @@ func (p *round3Handler) Finalize(logger log.Logger) (types.Handler, error) {
 	}
 	p.result = &Result{
 		refreshShare:     refreshShare,
-		Share:            refreshShare,
 		sumpartialPubKey: partialPubKey,
-		PartialPublicKey: partialPubKey,
-		PederssenParas:   pederssenParas,
-		PaillierPrivateP: p.ped.GetP(),
-		PaillierPrivateQ: p.ped.GetQ(),
 	}
 	return nil, nil
 }
