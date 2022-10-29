@@ -35,10 +35,17 @@ type round3Data struct {
 
 type Result struct {
 	refreshShare         *big.Int
+	RefreshShare         *big.Int
 	refreshPaillierKey   *paillier.Paillier
+	RefreshPaillierKey   *paillier.Paillier
 	refreshPartialPubKey map[string]*pt.ECPoint
+	RefreshPartialPubKey map[string]*pt.ECPoint
 	y                    map[string]*pt.ECPoint
+	Y                    map[string]*pt.ECPoint
 	pedParameter         map[string]*paillierzkproof.PederssenOpenParameter
+	PedParameter         map[string]*paillierzkproof.PederssenOpenParameter
+	PaillierPrivateP     *big.Int
+	PaillierPrivateQ     *big.Int
 }
 
 type round3Handler struct {
@@ -230,12 +237,20 @@ func (p *round3Handler) Finalize(logger log.Logger) (types.Handler, error) {
 	p.result = &Result{
 		// new Share
 		refreshShare:       refreshShare,
+		RefreshShare:       refreshShare,
 		refreshPaillierKey: p.paillierKey,
+		RefreshPaillierKey: p.paillierKey,
 		// refreshPartialPubKey: X
 		refreshPartialPubKey: partialPubKey,
+		RefreshPartialPubKey: partialPubKey,
 		y:                    Y,
+		Y:                    Y,
 		// pedParameter: N, s, t
 		pedParameter: ped,
+		PedParameter: ped,
+
+		PaillierPrivateP: p.ped.GetP(),
+		PaillierPrivateQ: p.ped.GetQ(),
 	}
 	return nil, nil
 }
