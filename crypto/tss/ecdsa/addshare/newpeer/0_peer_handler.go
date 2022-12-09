@@ -15,6 +15,7 @@
 package newpeer
 
 import (
+	"errors"
 	"math/big"
 
 	"github.com/getamis/alice/crypto/birkhoffinterpolation"
@@ -26,6 +27,7 @@ import (
 	"github.com/getamis/alice/types"
 	"github.com/getamis/sirius/log"
 	proto "github.com/golang/protobuf/proto"
+	"golang.org/x/exp/slices"
 )
 
 const (
@@ -43,6 +45,7 @@ type peerHandler struct {
 	fieldOrder  *big.Int
 	pubkey      *ecpointgrouplaw.ECPoint
 	threshold   uint32
+	ridHash     []byte
 	newPeerRank uint32
 
 	peerManager types.PeerManager
@@ -98,6 +101,20 @@ func (p *peerHandler) HandleMessage(logger log.Logger, message types.Message) er
 	if err != nil {
 		logger.Warn("Failed to get bk", "err", err)
 		return err
+	}
+	ridHash := body.GetRidHash()
+	if len(ridHash) == 0 {
+		logger.Warn("Failed to get ridHash", "err")
+		return errors.New("Failed to get RID Hash")
+	}
+
+	if len(p.ridHash) == 0 {
+		p.ridHash = ridHash
+	} else {
+		if !slices.Equal(p.ridHash, ridHash) {
+			logger.Warn("Inconsistent ridHash", ridHash, p.ridHash)
+			return errors.New("Inconsistent ridHash")
+		}
 	}
 	pubkey, err := body.GetPubkey().ToPoint()
 	if err != nil {

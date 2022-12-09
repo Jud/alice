@@ -36,6 +36,7 @@ type Result struct {
 	PublicKey         *ecpointgrouplaw.ECPoint
 	Share             *big.Int
 	Bks               map[string]*birkhoffinterpolation.BkParameter
+	Rid               *big.Int
 }
 
 func NewAddShare(peerManager types.PeerManager, pubkey *ecpointgrouplaw.ECPoint, threshold, newPeerRank uint32, listener types.StateChangedListener) *AddShare {
@@ -75,6 +76,7 @@ func (a *AddShare) GetResult() (*Result, error) {
 		PartialPublicKeys: pks,
 		PublicKey:         rh.pubkey,
 		Share:             rh.share,
+		Rid:               rh.rid,
 		Bks:               bks,
 	}, nil
 }

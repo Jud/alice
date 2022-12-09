@@ -47,6 +47,7 @@ message BodyOldPeer {
     zkproof.SchnorrProofMessage siGProofMsg = 2;
     ecpointgrouplaw.EcPointMessage pubkey = 3;
     uint32 threshold = 4;
+    bytes ridHash = 5;
 }
 
 message BodyNewBk {
@@ -60,6 +61,7 @@ message BodyCompute {
 
 message BodyResult {
     bytes delta = 1;
+    bytes rid = 2;
 }
 
 message BodyVerify {

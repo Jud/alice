@@ -15,6 +15,7 @@
 package oldpeer
 
 import (
+	"crypto/sha256"
 	"math/big"
 
 	"github.com/getamis/alice/crypto/birkhoffinterpolation"
@@ -37,6 +38,8 @@ type peerHandler struct {
 	fieldOrder  *big.Int
 	pubkey      *ecpointgrouplaw.ECPoint
 	share       *big.Int
+	rid         *big.Int
+	ridHash     []byte
 	siGProofMsg *zkproof.SchnorrProofMessage
 	bk          *birkhoffinterpolation.BkParameter
 	threshold   uint32
@@ -47,7 +50,7 @@ type peerHandler struct {
 	peers       map[string]*peer
 }
 
-func newPeerHandler(peerManager types.PeerManager, pubkey *ecpointgrouplaw.ECPoint, threshold uint32, share *big.Int, bks map[string]*birkhoffinterpolation.BkParameter, newPeerID string) (*peerHandler, error) {
+func newPeerHandler(peerManager types.PeerManager, pubkey *ecpointgrouplaw.ECPoint, threshold uint32, share, rid *big.Int, bks map[string]*birkhoffinterpolation.BkParameter, newPeerID string) (*peerHandler, error) {
 	numPeers := peerManager.NumPeers()
 	lenBks := len(bks)
 	if lenBks != int(numPeers+1) {
@@ -72,10 +75,14 @@ func newPeerHandler(peerManager types.PeerManager, pubkey *ecpointgrouplaw.ECPoi
 		return nil, err
 	}
 
+	ridSum := sha256.Sum256(rid.Bytes())
+
 	return &peerHandler{
 		fieldOrder:  fieldOrder,
 		pubkey:      pubkey,
 		share:       share,
+		rid:         rid,
+		ridHash:     ridSum[:],
 		siGProofMsg: siGProofMsg,
 		bk:          selfBK,
 		threshold:   threshold,
@@ -190,6 +197,7 @@ func (p *peerHandler) getOldPeerMessage() *addshare.Message {
 				Bk:          p.bk.ToMessage(),
 				SiGProofMsg: p.siGProofMsg,
 				Pubkey:      pubkey,
+				RidHash:     p.ridHash,
 				Threshold:   p.threshold,
 			},
 		},

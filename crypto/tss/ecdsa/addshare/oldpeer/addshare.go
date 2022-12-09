@@ -38,9 +38,9 @@ type Result struct {
 	Bks               map[string]*birkhoffinterpolation.BkParameter
 }
 
-func NewAddShare(peerManager types.PeerManager, pubkey *ecpointgrouplaw.ECPoint, threshold uint32, share *big.Int, bks map[string]*birkhoffinterpolation.BkParameter, newPeerID string, listener types.StateChangedListener) (*AddShare, error) {
+func NewAddShare(peerManager types.PeerManager, pubkey *ecpointgrouplaw.ECPoint, threshold uint32, share, rid *big.Int, bks map[string]*birkhoffinterpolation.BkParameter, newPeerID string, listener types.StateChangedListener) (*AddShare, error) {
 	peerNum := peerManager.NumPeers()
-	ph, err := newPeerHandler(peerManager, pubkey, threshold, share, bks, newPeerID)
+	ph, err := newPeerHandler(peerManager, pubkey, threshold, share, rid, bks, newPeerID)
 	if err != nil {
 		return nil, err
 	}

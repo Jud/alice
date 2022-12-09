@@ -15,6 +15,8 @@
 package newpeer
 
 import (
+	"crypto/sha256"
+	"errors"
 	"math/big"
 
 	"github.com/getamis/alice/crypto/birkhoffinterpolation"
@@ -25,6 +27,7 @@ import (
 	"github.com/getamis/alice/crypto/zkproof"
 	"github.com/getamis/alice/types"
 	"github.com/getamis/sirius/log"
+	"golang.org/x/exp/slices"
 )
 
 type resultData struct {
@@ -39,6 +42,7 @@ type resultHandler struct {
 	bk    *birkhoffinterpolation.BkParameter
 	bks   birkhoffinterpolation.BkParameters
 	sgs   []*ecpointgrouplaw.ECPoint
+	rid   *big.Int
 }
 
 func newResultHandler(p *peerHandler, bk *birkhoffinterpolation.BkParameter, bks birkhoffinterpolation.BkParameters, sgs []*ecpointgrouplaw.ECPoint) *resultHandler {
@@ -76,6 +80,17 @@ func (r *resultHandler) HandleMessage(logger log.Logger, message types.Message) 
 	if !ok {
 		logger.Warn("Peer not found")
 		return tss.ErrPeerNotFound
+	}
+
+	rid := body.GetRid()
+	ridSum := sha256.Sum256(rid)
+	if !slices.Equal(ridSum[:], r.ridHash) {
+		logger.Warn("Inconsistent rid")
+		return errors.New("Inconsistent rid")
+	}
+
+	if r.rid == nil {
+		r.rid = new(big.Int).SetBytes(rid)
 	}
 
 	delta := new(big.Int).SetBytes(body.GetDelta())

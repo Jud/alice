@@ -113,6 +113,7 @@ func (p *computeHandler) Finalize(logger log.Logger) (types.Handler, error) {
 		Body: &addshare.Message_Result{
 			Result: &addshare.BodyResult{
 				Delta: p.deltaI.Bytes(),
+				Rid:   p.rid.Bytes(),
 			},
 		},
 	}
